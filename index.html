@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Golf Scorecard Setup</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 32px; background: #f9f9f9; }
+    .container { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 0 10px #ddd; max-width: 400px; margin: auto; }
+    .section { margin-bottom: 24px; }
+    label { font-weight: 500; }
+    input[type="number"] { width: 60px; }
+    .hidden { display: none; }
+    button { padding: 10px 18px; border: none; border-radius: 5px; background: #2e7d32; color: #fff; cursor: pointer; }
+    button:hover { background: #219150; }
+  </style>
+</head>
+<body>
+  <div class="container" id="setup-screen">
+    <h2>Golf Scorecard Setup</h2>
+
+    <div class="section">
+      <label>How many holes?</label><br>
+      <input type="radio" name="holes" id="holes9" value="9"> <label for="holes9">9</label>
+      <input type="radio" name="holes" id="holes18" value="18"> <label for="holes18">18</label>
+      <input type="radio" name="holes" id="holesOther" value="custom"> <label for="holesOther">Other</label>
+      <input type="number" id="customHoles" class="hidden" min="1" max="36" placeholder="Enter #">
+    </div>
+
+    <div class="section">
+      <label>How many players?</label><br>
+      <input type="radio" name="players" id="players1" value="1"> <label for="players1">1</label>
+      <input type="radio" name="players" id="players2" value="2"> <label for="players2">2</label>
+      <input type="radio" name="players" id="players3" value="3"> <label for="players3">3</label>
+      <input type="radio" name="players" id="players4" value="4"> <label for="players4">4</label>
+      <input type="radio" name="players" id="playersOther" value="custom"> <label for="playersOther">Other</label>
+      <input type="number" id="customPlayers" class="hidden" min="1" max="8" placeholder="Enter #">
+    </div>
+
+    <div class="section">
+      <label for="coursePar">Course Par (optional):</label><br>
+      <input type="number" id="coursePar" min="1" max="150" placeholder="e.g. 72">
+    </div>
+
+    <button id="nextBtn">Next</button>
+  </div>
+
+  <script>
+    // Show/hide custom holes input
+    document.querySelectorAll('input[name="holes"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.getElementById('customHoles').classList.toggle('hidden', this.value !== 'custom');
+      });
+    });
+
+    // Show/hide custom players input
+    document.querySelectorAll('input[name="players"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.getElementById('customPlayers').classList.toggle('hidden', this.value !== 'custom');
+      });
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', function() {
+      // Holes
+      let holes = document.querySelector('input[name="holes"]:checked');
+      if (!holes) { alert('Please select how many holes.'); return; }
+      if (holes.value === 'custom') {
+        holes = document.getElementById('customHoles').value;
+        if (!holes || holes < 1) { alert('Enter a valid number of holes.'); return; }
+      } else {
+        holes = holes.value;
+      }
+
+      // Players
+      let players = document.querySelector('input[name="players"]:checked');
+      if (!players) { alert('Please select how many players.'); return; }
+      if (players.value === 'custom') {
+        players = document.getElementById('customPlayers').value;
+        if (!players || players < 1) { alert('Enter a valid number of players.'); return; }
+      } else {
+        players = players.value;
+      }
+
+      // Par (optional)
+      let par = document.getElementById('coursePar').value || null;
+
+      // For demo, log values. Replace this with your navigation to the next screen.
+      console.log('Holes:', holes);
+      console.log('Players:', players);
+      console.log('Course Par:', par);
+
+      // Hide this screen, show next step (replace with your actual logic)
+      document.getElementById('setup-screen').innerHTML = `<h2>Setup Complete</h2>
+        <p>Holes: ${holes}</p>
+        <p>Players: ${players}</p>
+        <p>Course Par: ${par ? par : 'N/A'}</p>
+        <p>(Now proceed to player name input...)</p>
+      `;
+    });
+  </script>
+</body>
+</html>
