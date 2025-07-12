@@ -4,81 +4,14 @@
   <meta charset="UTF-8">
   <title>Golf Scorecard Setup</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 32px;
-      background: #f9f9f9;
-    }
-
-    .container {
-      background: #fff;
-      padding: 32px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #ddd;
-      max-width: 800px;
-      margin: auto;
-    }
-
-    .section {
-      margin-bottom: 24px;
-    }
-
-    label {
-      font-weight: 500;
-    }
-
-    input[type="number"] {
-      width: 60px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    button {
-      padding: 10px 18px;
-      border: none;
-      border-radius: 5px;
-      background: #2e7d32;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #219150;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    th,
-    td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
+    body { font-family: Arial, sans-serif; padding: 32px; background: #f9f9f9; }
+    .container { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 0 10px #ddd; max-width: 400px; margin: auto; }
+    .section { margin-bottom: 24px; }
+    label { font-weight: 500; }
+    input[type="number"] { width: 60px; }
+    .hidden { display: none; }
+    button { padding: 10px 18px; border: none; border-radius: 5px; background: #2e7d32; color: #fff; cursor: pointer; }
+    button:hover { background: #219150; }
   </style>
 </head>
 <body>
@@ -126,12 +59,6 @@
       });
     });
 
-    let numHoles = 0;
-    let numPlayers = 0;
-    let coursePar = null;
-    let playerNames = [];
-    let scores = [];
-
     document.getElementById('nextBtn').addEventListener('click', function() {
       // Holes
       let holes = document.querySelector('input[name="holes"]:checked');
@@ -154,12 +81,14 @@
       }
 
       // Par (optional)
-      let parVal = document.getElementById('coursePar').value;
-      coursePar = parVal ? parseInt(parVal, 10) : null;
+      let par = document.getElementById('coursePar').value || null;
 
-      numHoles = holes;
-      numPlayers = players;
+      // For demo, log values. Replace this with your navigation to the next screen.
+      console.log('Holes:', holes);
+      console.log('Players:', players);
+      console.log('Course Par:', par);
 
+      // Move to player name entry screen
       showPlayerNameInput(players);
     });
 
@@ -173,123 +102,16 @@
       container.innerHTML = html;
 
       document.getElementById('playersNextBtn').addEventListener('click', function() {
-        playerNames = [];
+        const names = [];
         for (let i = 1; i <= players; i++) {
           const name = document.getElementById('player' + i).value.trim();
           if (!name) { alert('Please enter all player names.'); return; }
-          playerNames.push(name);
+          names.push(name);
         }
-        showScorecard();
+        console.log('Player Names:', names);
+        container.innerHTML = `<h2>Names Recorded</h2>\n          <p>${names.join(', ')}</p>\n          <p>(Proceed to next step...)</p>`;
       });
-    }
-
-    function showScorecard() {
-      scores = Array.from({ length: numPlayers }, () => Array(numHoles).fill(null));
-      const container = document.getElementById('setup-screen');
-      let html = '<h2>Scorecard</h2><table id="scoreTable"><thead><tr><th>Player</th>';
-      for (let h = 1; h <= numHoles; h++) {
-        html += `<th>Hole ${h}<br><button class="enterBtn" data-hole="${h}">Enter Score for Hole ${h}</button></th>`;
-      }
-      html += '<th>Total</th>';
-      if (coursePar !== null) html += '<th>vs Par</th>';
-      html += '</tr></thead><tbody>';
-      for (let p = 0; p < numPlayers; p++) {
-        html += `<tr><td>${playerNames[p]}</td>`;
-        for (let h = 1; h <= numHoles; h++) {
-          html += `<td data-player="${p}" data-hole="${h}"></td>`;
-        }
-        html += `<td class="total" data-player="${p}">0</td>`;
-        if (coursePar !== null) html += `<td class="par-diff" data-player="${p}">Even</td>`;
-        html += '</tr>';
-      }
-      html += '</tbody></table><div id="leaderboard" class="hidden"></div>';
-      container.innerHTML = html;
-
-      document.querySelectorAll('.enterBtn').forEach(btn => {
-        btn.addEventListener('click', () => enterScoresForHole(parseInt(btn.dataset.hole, 10)));
-      });
-    }
-
-    function enterScoresForHole(hole) {
-      let idx = 0;
-      const modal = document.getElementById('scoreModal');
-      const title = document.getElementById('modalTitle');
-      const input = document.getElementById('modalInput');
-      const save = document.getElementById('modalSaveBtn');
-
-      function ask() {
-        title.textContent = `Hole ${hole} - ${playerNames[idx]}'s score`;
-        input.value = scores[idx][hole - 1] ?? '';
-        modal.classList.remove('hidden');
-      }
-
-      save.onclick = function () {
-        const val = parseInt(input.value, 10);
-        if (isNaN(val)) { alert('Enter a valid score'); return; }
-        scores[idx][hole - 1] = val;
-        idx++;
-        if (idx >= numPlayers) {
-          modal.classList.add('hidden');
-          input.value = '';
-          updateTable();
-        } else {
-          ask();
-        }
-      };
-
-      ask();
-    }
-
-    function updateTable() {
-      for (let p = 0; p < numPlayers; p++) {
-        let total = 0;
-        for (let h = 1; h <= numHoles; h++) {
-          const val = scores[p][h - 1];
-          const cell = document.querySelector(`td[data-player="${p}"][data-hole="${h}"]`);
-          if (cell) cell.textContent = val != null ? val : '';
-          if (val != null) total += val;
-        }
-        const totalCell = document.querySelector(`td.total[data-player="${p}"]`);
-        if (totalCell) totalCell.textContent = total;
-        if (coursePar !== null) {
-          const diffCell = document.querySelector(`td.par-diff[data-player="${p}"]`);
-          const diff = total - coursePar;
-          const txt = diff === 0 ? 'Even' : diff > 0 ? `${diff} over` : `${-diff} under`;
-          if (diffCell) diffCell.textContent = txt;
-        }
-      }
-
-      if (scores.every(row => row.every(v => v !== null))) {
-        showLeaderboard();
-      }
-    }
-
-    function showLeaderboard() {
-      const board = document.getElementById('leaderboard');
-      const results = playerNames.map((n, i) => ({ name: n, total: scores[i].reduce((a, b) => a + b, 0) }))
-        .sort((a, b) => a.total - b.total);
-      let html = '<h3>Final Leaderboard</h3><ol>';
-      results.forEach(r => {
-        let str = `${r.name} - ${r.total}`;
-        if (coursePar !== null) {
-          const diff = r.total - coursePar;
-          if (diff === 0) str += ' (Even par)';
-          else if (diff > 0) str += ` (${diff} over par)`;
-          else str += ` (${Math.abs(diff)} under par)`;
-        }
-        html += `<li>${str}</li>`;
-      });
-      html += '</ol>';
-      board.innerHTML = html;
-      board.classList.remove('hidden');
     }
   </script>
-  <div id="scoreModal" class="modal hidden">
-    <div class="modal-content">
-      <h3 id="modalTitle"></h3>
-      <input type="number" id="modalInput"><br><br>
-      <button id="modalSaveBtn">Save</button>
-    </div>
-  </div>
 </body>
 </html>
