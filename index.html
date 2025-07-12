@@ -67,7 +67,7 @@
         holes = document.getElementById('customHoles').value;
         if (!holes || holes < 1) { alert('Enter a valid number of holes.'); return; }
       } else {
-        holes = holes.value;
+        holes = parseInt(holes.value, 10);
       }
 
       // Players
@@ -77,7 +77,7 @@
         players = document.getElementById('customPlayers').value;
         if (!players || players < 1) { alert('Enter a valid number of players.'); return; }
       } else {
-        players = players.value;
+        players = parseInt(players.value, 10);
       }
 
       // Par (optional)
@@ -88,14 +88,30 @@
       console.log('Players:', players);
       console.log('Course Par:', par);
 
-      // Hide this screen, show next step (replace with your actual logic)
-      document.getElementById('setup-screen').innerHTML = `<h2>Setup Complete</h2>
-        <p>Holes: ${holes}</p>
-        <p>Players: ${players}</p>
-        <p>Course Par: ${par ? par : 'N/A'}</p>
-        <p>(Now proceed to player name input...)</p>
-      `;
+      // Move to player name entry screen
+      showPlayerNameInput(players);
     });
+
+    function showPlayerNameInput(players) {
+      const container = document.getElementById('setup-screen');
+      let html = '<h2>Enter Player Names</h2>';
+      for (let i = 1; i <= players; i++) {
+        html += `\n        <div class="section">\n          <label for="player${i}">Player ${i}:</label><br>\n          <input type="text" id="player${i}" placeholder="Player ${i} name">\n        </div>`;
+      }
+      html += '\n      <button id="playersNextBtn">Next</button>';
+      container.innerHTML = html;
+
+      document.getElementById('playersNextBtn').addEventListener('click', function() {
+        const names = [];
+        for (let i = 1; i <= players; i++) {
+          const name = document.getElementById('player' + i).value.trim();
+          if (!name) { alert('Please enter all player names.'); return; }
+          names.push(name);
+        }
+        console.log('Player Names:', names);
+        container.innerHTML = `<h2>Names Recorded</h2>\n          <p>${names.join(', ')}</p>\n          <p>(Proceed to next step...)</p>`;
+      });
+    }
   </script>
 </body>
 </html>
