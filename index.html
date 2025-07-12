@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Golf Scorecard Setup</title>
+  <title>Golf Scorecard</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 32px; background: #f9f9f9; }
     .container { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 0 10px #ddd; max-width: 800px; margin: auto; }
@@ -222,6 +222,15 @@
       html += '</ol>';
       board.innerHTML = html;
     }
+
+    // Display scorecard by default with example players
+    document.addEventListener('DOMContentLoaded', () => {
+      holes = 9;
+      playerCount = 4;
+      playerNames = Array.from({ length: playerCount }, (_, i) => `Player ${i + 1}`);
+      coursePar = null;
+      startScorecard();
+    });
   </script>
 </body>
 </html>
