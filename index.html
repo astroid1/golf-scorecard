@@ -16,7 +16,8 @@
     th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
     th { background: #f0f0f0; }
     .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
-    .modal-content { background: #fff; padding: 20px; border-radius: 8px; }
+    .modal-content { background: #fff; padding: 20px; border-radius: 8px; position: relative; }
+    .close { position: absolute; top: 8px; right: 8px; background: none; border: none; font-size: 20px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -128,6 +129,7 @@
     function startScorecard() {
       scores = Array.from({ length: playerCount }, () => Array(holes).fill(null));
       totals = Array(playerCount).fill(0);
+      currentHole = 1;
 
       const container = document.getElementById('setup-screen');
       let html = '<h2>Scorecard</h2><table id="scoreTable"><thead><tr><th>Player</th>';
@@ -146,21 +148,16 @@
       }
       html += '</tbody></table>';
       html += '<div id="holeButtons">';
-      for (let i = 1; i <= holes; i++) {
-        html += `<button class="holeBtn" data-hole="${i}">Enter Score for Hole ${i}</button> `;
-      }
+      html += '<button id="nextHoleBtn">Enter Score for Hole 1</button>';
       html += '</div>';
       html += '<div id="leaderboard"></div>';
       container.innerHTML = html;
 
-      document.querySelectorAll('.holeBtn').forEach(btn => {
-        btn.addEventListener('click', () => openScoreEntry(parseInt(btn.dataset.hole, 10)));
-      });
+      document.getElementById('nextHoleBtn').addEventListener('click', () => openScoreEntry(currentHole));
     }
 
     function openScoreEntry(hole) {
       currentHole = hole;
-      currentPlayerIndex = 0;
       ensureModal();
       document.getElementById('scoreInput').value = '';
       showModal();
@@ -173,9 +170,12 @@
         modal = document.createElement('div');
         modal.id = 'scoreModal';
         modal.className = 'modal hidden';
-        modal.innerHTML = '<div class="modal-content"><h3 id="modalTitle"></h3><input type="number" id="scoreInput" min="0"><button id="scoreSubmit">Save</button></div>';
+        modal.innerHTML = '<div class="modal-content"><button id="closeModal" class="close">&times;</button><h3 id="modalTitle"></h3><input type="number" id="scoreInput" min="0"><button id="scoreSubmit">Save</button></div>';
         container.appendChild(modal);
         document.getElementById('scoreSubmit').addEventListener('click', saveScore);
+        document.getElementById('closeModal').addEventListener('click', () => {
+          document.getElementById('scoreModal').classList.add('hidden');
+        });
       }
     }
 
@@ -207,16 +207,16 @@
       }
       currentPlayerIndex++;
       input.value = '';
-      if (currentPlayerIndex < playerCount) {
-        showModal();
-      } else {
-        document.getElementById('scoreModal').classList.add('hidden');
-        const btn = document.querySelector(`button[data-hole="${currentHole}"]`);
-        if (btn) btn.disabled = true;
-        const allFilled = scores.every(row => row.every(s => s !== null));
-        if (allFilled) {
+      document.getElementById('scoreModal').classList.add('hidden');
+      if (currentPlayerIndex >= playerCount) {
+        currentPlayerIndex = 0;
+        currentHole++;
+        if (currentHole > holes) {
           document.getElementById('holeButtons').style.display = 'none';
           showLeaderboard();
+        } else {
+          const btn = document.getElementById('nextHoleBtn');
+          if (btn) btn.textContent = `Enter Score for Hole ${currentHole}`;
         }
       }
     }
