@@ -223,14 +223,7 @@
       board.innerHTML = html;
     }
 
-    // Display scorecard by default with example players
-    document.addEventListener('DOMContentLoaded', () => {
-      holes = 9;
-      playerCount = 4;
-      playerNames = Array.from({ length: playerCount }, (_, i) => `Player ${i + 1}`);
-      coursePar = null;
-      startScorecard();
-    });
+    // The scorecard starts after the setup and player name screens
   </script>
 </body>
 </html>
