@@ -151,20 +151,32 @@
       }
       html += '</div>';
       html += '<div id="leaderboard"></div>';
-      html += `<div id="scoreModal" class="modal hidden"><div class="modal-content"><h3 id="modalTitle"></h3><input type="number" id="scoreInput" min="0"><button id="scoreSubmit">Save</button></div></div>`;
       container.innerHTML = html;
 
       document.querySelectorAll('.holeBtn').forEach(btn => {
         btn.addEventListener('click', () => openScoreEntry(parseInt(btn.dataset.hole, 10)));
       });
-      document.getElementById('scoreSubmit').addEventListener('click', saveScore);
     }
 
     function openScoreEntry(hole) {
       currentHole = hole;
       currentPlayerIndex = 0;
+      ensureModal();
       document.getElementById('scoreInput').value = '';
       showModal();
+    }
+
+    function ensureModal() {
+      let modal = document.getElementById('scoreModal');
+      if (!modal) {
+        const container = document.getElementById('setup-screen');
+        modal = document.createElement('div');
+        modal.id = 'scoreModal';
+        modal.className = 'modal hidden';
+        modal.innerHTML = '<div class="modal-content"><h3 id="modalTitle"></h3><input type="number" id="scoreInput" min="0"><button id="scoreSubmit">Save</button></div>';
+        container.appendChild(modal);
+        document.getElementById('scoreSubmit').addEventListener('click', saveScore);
+      }
     }
 
     function showModal() {
